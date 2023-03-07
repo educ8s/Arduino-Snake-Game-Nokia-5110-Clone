@@ -38,7 +38,6 @@ bool ElementInDeque(Vector2 element, Deque<Vector2> deque)
     return false;
 }
 
-
 class Snake
 {
   public:
@@ -248,7 +247,7 @@ void loop() {
   {
     display.clearDisplay();
     display.drawRect(0, 0, 83, 47, BLACK);
-
+    
     if(EventTriggered(175))
     {
         game.snake.direction = keyPressed(game.snake.direction);
@@ -256,6 +255,7 @@ void loop() {
     }
     
     game.Draw();
+    
     display.display();
     }
   else if (game.screen == 2)
@@ -263,10 +263,12 @@ void loop() {
     if(joystick.keyPressedY == 'U' || joystick.keyPressedY == 'D')
     {
       game.screen = 1;
+      game.running = true;
     }
     if(joystick.keyPressedX == 'L' || joystick.keyPressedX == 'R')
     {
       game.screen = 1;
+      game.running = true;
     }
   }
 }
@@ -312,10 +314,7 @@ Vector2 keyPressed(Vector2 currentDirection)
         newDirection = Vector2(0, 1);
         game.running = true;
     }
-  
-    // update last pressed direction only if a new direction was assigned
-    if (newDirection.x != currentDirection.x || newDirection.y != currentDirection.y) {
-        lastPressedDirection = newDirection;
-    }  
+
+    lastPressedDirection = newDirection;
     return lastPressedDirection;
 }
