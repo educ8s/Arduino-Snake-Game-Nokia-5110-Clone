@@ -5,6 +5,8 @@
 #include "Joystick.h"
 #include "Vector2.h"
 
+int GAME_SPEED = 50; //from 0 to 100
+
 Adafruit_PCD8544 display = Adafruit_PCD8544(20, 17, 16);
 
 int cellSize = 3;
@@ -12,7 +14,7 @@ int cellCountX = 27;
 int cellCountY = 15;
 unsigned long lastUpdateTime=0;
 int offset = 1;
-int buzzerPin = 28;
+int buzzerPin = 22;
 Vector2 lastPressedDirection = Vector2(1, 0);
 
 bool EventTriggered(unsigned long interval)
@@ -190,7 +192,6 @@ public:
     snake.Reset();
     food.position = food.SetNewPosition(snake.body);
     running = false;
-    playGameOverSound();
     screen = 2;
     DisplayGameOverScreen();
   }
@@ -200,21 +201,9 @@ public:
   }
 
   void playGameOverSound() {
-  int frequencies[] = {988, 0};
-  int durations[] = {500, 500};
-
-  for(int i = 0; i < 2; i++) {
-    if(frequencies[i] == 0) {
-      noTone(buzzerPin);
-    } else {
-      tone(buzzerPin, frequencies[i], durations[i]);
-    }
-
-    delay(durations[i] * 1.2);
-    noTone(buzzerPin);
-    delay(50);
+    tone(buzzerPin, 400, 500); // play a 1kHz tone for 500ms on the buzzerPin
   }
-}
+
 };
 
 Joystick joystick;
@@ -232,6 +221,7 @@ void loop() {
   joystick.ReadYaxis();
   joystick.ReadXaxis();
 
+
   if(game.screen == 0)
   {
     DisplaySplashScreen();
@@ -248,15 +238,14 @@ void loop() {
     display.clearDisplay();
     display.drawRect(0, 0, 83, 47, BLACK);
     
-    if(EventTriggered(175))
+    if(EventTriggered(getGameSpeed()))
     {
         game.snake.direction = keyPressed(game.snake.direction);
         game.Update();
     }
-    
     game.Draw();
-    
     display.display();
+
     }
   else if (game.screen == 2)
   { 
@@ -271,6 +260,12 @@ void loop() {
       game.running = true;
     }
   }
+}
+
+unsigned long getGameSpeed()
+{
+  unsigned long interval = map(GAME_SPEED, 0, 100, 200, 80);
+  return interval;
 }
 
 void DisplaySplashScreen()
@@ -291,6 +286,7 @@ void DisplayGameOverScreen()
   display.println(scoreString);
   display.display();
   game.score = 0;
+  game.playGameOverSound();
 }
 
 Vector2 keyPressed(Vector2 currentDirection)
